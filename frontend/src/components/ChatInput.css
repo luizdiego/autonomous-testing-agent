@@ -1,0 +1,123 @@
+.chat-input-wrapper {
+  width: 100%;
+  max-width: 680px;
+  padding: 0 16px;
+}
+
+.chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e1e1e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 28px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+
+.chat-input-bar:focus-within {
+  border-color: rgba(99,179,255,0.4);
+  box-shadow: 0 0 0 3px rgba(99,179,255,0.06);
+}
+
+.chat-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: rgba(255,255,255,0.87);
+  font-size: 15px;
+  font-family: inherit;
+  resize: none;
+  line-height: 1.5;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.chat-textarea::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.input-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.input-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
+}
+
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  position: relative;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.model-selector:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.model-dot {
+  color: #4a9eff;
+  fill: #4a9eff;
+}
+
+.model-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #252525;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 110px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 100;
+}
+
+.model-option {
+  width: 100%;
+  padding: 9px 14px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.model-option:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+.model-option.selected {
+  color: #4a9eff;
+  background: rgba(74,158,255,0.08);
+}
