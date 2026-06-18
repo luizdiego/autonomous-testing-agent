@@ -1,24 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import './ContextPanel.css';
 
 const DEFAULT_CONTEXTS = [
-  {
-    id: 1,
-    name: 'System Prompt',
-    content: 'You are an autonomous testing agent. You help generate, run and evaluate test cases for software applications.',
-  },
-  {
-    id: 2,
-    name: 'App Under Test',
-    content: 'Application: E-commerce checkout flow\nBase URL: https://app.example.com\nAuth: Bearer token required',
-  },
+  { id: 1, name: 'System Prompt', content: 'You are an autonomous testing agent. You help generate, run and evaluate test cases for software applications.' },
+  { id: 2, name: 'App Under Test', content: '' },
 ];
 
-export default function ContextPanel() {
+export default function ContextPanel({ onContextsChange }) {
   const [contexts, setContexts] = useState(DEFAULT_CONTEXTS);
   const [expanded, setExpanded] = useState({ 1: true, 2: false });
-  const [nextId, setNextId] = useState(3);
+  const [nextId, setNextId]     = useState(3);
+
+  useEffect(() => {
+    onContextsChange?.(contexts);
+  }, [contexts, onContextsChange]);
 
   const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
 
@@ -29,13 +25,10 @@ export default function ContextPanel() {
     setExpanded(prev => ({ ...prev, [id]: true }));
   };
 
-  const remove = (id) => {
-    setContexts(prev => prev.filter(c => c.id !== id));
-  };
+  const remove = (id) => setContexts(prev => prev.filter(c => c.id !== id));
 
-  const update = (id, field, value) => {
+  const update = (id, field, value) =>
     setContexts(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
-  };
 
   return (
     <div className="context-panel">
@@ -58,11 +51,7 @@ export default function ContextPanel() {
                 onClick={e => e.stopPropagation()}
               />
               <div className="ctx-block-actions">
-                <button
-                  className="ctx-icon-btn"
-                  onClick={(e) => { e.stopPropagation(); remove(ctx.id); }}
-                  title="Remove"
-                >
+                <button className="ctx-icon-btn" onClick={e => { e.stopPropagation(); remove(ctx.id); }} title="Remove">
                   <Trash2 size={13} />
                 </button>
                 {expanded[ctx.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
