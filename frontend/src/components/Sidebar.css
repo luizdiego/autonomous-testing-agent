@@ -23,6 +23,7 @@
   position: relative;
   width: 40px;
   height: 40px;
+  padding: 0;
   border-radius: 10px;
   border: none;
   background: transparent;
@@ -31,7 +32,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-btn svg {
+  flex-shrink: 0;
 }
 
 .sidebar-btn:hover {

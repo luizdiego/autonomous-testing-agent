@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { render, screen } from '@testing-library/react';
 import Sidebar from '../components/Sidebar';
 
@@ -32,5 +34,14 @@ describe('Sidebar', () => {
     render(<Sidebar activeView="chats" onNavigate={onNavigate} />);
     screen.getByTitle('Apps').click();
     expect(onNavigate).toHaveBeenCalledWith('apps');
+  });
+
+  it('zeroes button padding so icons are not collapsed by the global button style', () => {
+    const css = readFileSync(
+      resolve(process.cwd(), 'src/components/Sidebar.css'),
+      'utf8',
+    );
+    const rule = css.match(/\.sidebar-btn\s*\{([^}]*)\}/)?.[1] || '';
+    expect(rule).toMatch(/padding:\s*0\s*;/);
   });
 });
