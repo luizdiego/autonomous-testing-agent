@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# test coverage
+coverage
+*.lcov
+
 # env & secrets (never commit)
 .env
 .env.*
@@ -20,9 +24,12 @@ dist-ssr
 *.pem
 *.key
 *.token
+*.p12
+*.pfx
 secrets.json
 credentials.json
 auth.json
+.netrc
 
 # Editor directories and files
 .vscode/*
