@@ -71,6 +71,21 @@ class AIService {
     const cfg      = this.settings.providers[provider.id] || {};
     return provider.chat({ messages, model: cfg.model, signal });
   }
+
+  /**
+   * Verify credentials for a provider without persisting them.
+   * @param {string} providerId
+   * @param {{ token?: string, model?: string }} [config]
+   * @param {{ signal?: AbortSignal }} [opts]
+   * @returns {Promise<{ ok: boolean, message: string }>}
+   */
+  async testCredentials(providerId, config, { signal } = {}) {
+    const Cls = REGISTRY[providerId];
+    if (!Cls) return { ok: false, message: `Unknown provider: ${providerId}` };
+    const cfg = config || this.settings.providers[providerId] || {};
+    const provider = new Cls(cfg);
+    return provider.verify({ signal });
+  }
 }
 
 export const aiService = new AIService();

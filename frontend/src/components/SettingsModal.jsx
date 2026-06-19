@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Eye, EyeOff, Check } from 'lucide-react';
+import { X, Eye, EyeOff, Check, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { PROVIDER_META, aiService } from '../services/ai';
 import './SettingsModal.css';
 
@@ -7,21 +7,33 @@ export default function SettingsModal({ onClose }) {
   const [settings, setSettings] = useState(() => structuredClone(aiService.getSettings()));
   const [showToken, setShowToken] = useState({});
   const [saved, setSaved] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
 
   const active = settings.activeProvider;
   const providerCfg = settings.providers[active] || {};
   const providerMeta = PROVIDER_META.find(p => p.id === active);
 
-  const set = (field, value) =>
+  const set = (field, value) => {
+    if (field === 'token') setTestResult(null);
     setSettings(prev => ({
       ...prev,
       providers: { ...prev.providers, [active]: { ...prev.providers[active], [field]: value } },
     }));
+  };
 
   const handleSave = () => {
     aiService.updateSettings(settings);
     setSaved(true);
     setTimeout(() => { setSaved(false); onClose(); }, 800);
+  };
+
+  const handleTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    const result = await aiService.testCredentials(active, providerCfg);
+    setTestResult(result);
+    setTesting(false);
   };
 
   return (
@@ -40,7 +52,7 @@ export default function SettingsModal({ onClose }) {
               <button
                 key={p.id}
                 className={`provider-tab ${p.id === active ? 'active' : ''}`}
-                onClick={() => setSettings(prev => ({ ...prev, activeProvider: p.id }))}
+                onClick={() => { setTestResult(null); setSettings(prev => ({ ...prev, activeProvider: p.id })); }}
               >
                 {p.label}
               </button>
@@ -68,6 +80,25 @@ export default function SettingsModal({ onClose }) {
             </button>
           </div>
           <p className="field-hint">Stored in browser localStorage only — never sent to our servers.</p>
+
+          <div className="test-credentials-row">
+            <button
+              className="btn-test"
+              onClick={handleTest}
+              disabled={testing || !providerCfg.token}
+              title="Send a minimal request to verify your credentials"
+            >
+              {testing
+                ? <><Loader2 size={14} className="spin" /> Testing…</>
+                : 'Test credentials'}
+            </button>
+            {testResult && (
+              <span className={`test-result ${testResult.ok ? 'ok' : 'fail'}`}>
+                {testResult.ok ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                <span>{testResult.message}</span>
+              </span>
+            )}
+          </div>
 
           {/* Model */}
           <label className="field-label" style={{ marginTop: 20 }}>Model</label>
