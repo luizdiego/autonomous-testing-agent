@@ -30,6 +30,7 @@
 .ctx-add-btn {
   width: 26px;
   height: 26px;
+  padding: 0;
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.12);
   background: transparent;
@@ -38,6 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: all 0.15s;
 }
 
@@ -109,6 +111,7 @@
 .ctx-icon-btn {
   width: 22px;
   height: 22px;
+  padding: 0;
   border-radius: 5px;
   border: none;
   background: transparent;
@@ -117,7 +120,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: all 0.15s;
+}
+
+.ctx-add-btn svg,
+.ctx-icon-btn svg {
+  flex-shrink: 0;
 }
 
 .ctx-icon-btn:hover {

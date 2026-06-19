@@ -23,9 +23,12 @@ The **Autonomous Testing Agent** (ATA) removes the manual overhead of writing te
 - 🧠 **Context-aware prompting** — define system context, app details, and test data once; reuse across every prompt
 - ✏️ **Editable context blocks** — add, rename, collapse, or remove context blocks at any time via the right panel
 - 💬 **Chat interface** — interact with the agent conversationally, just like a modern AI assistant
+- 🤖 **Multiple AI providers** — switch between GitHub Copilot, OpenAI, and Anthropic from the Settings modal
+- 🔑 **Local-only credentials** — API tokens are stored exclusively in your browser's `localStorage` and never committed or sent to any third-party server
+- 🧭 **Multi-view navigation** — dedicated Chat, Search, Apps, and History views plus a one-click New Chat
 - 🏷️ **Test status badges** — agent responses surface `PASS`, `FAIL`, and `PENDING` states at a glance
 - 🎨 **Dark UI** — clean, distraction-free interface inspired by modern AI chat products
-- 🔌 **Backend-agnostic** — wire up any LLM or agent backend through the `onSend` handler in `App.jsx`
+- ✅ **Unit tested** — component and navigation tests run with Vitest + Testing Library
 
 ---
 
@@ -33,15 +36,22 @@ The **Autonomous Testing Agent** (ATA) removes the manual overhead of writing te
 
 ```
 autonomous-testing-agent/
-├── frontend/                    # React + Vite web application
+├── frontend/                        # React + Vite web application
 │   └── src/
-│       ├── App.jsx              # Root layout, global state, send handler
+│       ├── App.jsx                  # Root layout, global state, view routing, send handler
+│       ├── main.jsx                 # React entry point
 │       ├── components/
-│       │   ├── Sidebar.jsx      # Icon-only navigation sidebar
-│       │   ├── ChatArea.jsx     # Message list and welcome screen
-│       │   ├── ChatInput.jsx    # Prompt input bar with model selector
-│       │   └── ContextPanel.jsx # Right-hand context block manager
-│       └── index.css            # Global dark-theme base styles
+│       │   ├── Sidebar.jsx          # Icon-only navigation sidebar
+│       │   ├── ChatArea.jsx         # Message list and welcome screen
+│       │   ├── ChatInput.jsx        # Prompt input bar
+│       │   ├── ContextPanel.jsx     # Right-hand context block manager
+│       │   ├── PanelView.jsx        # Search / Apps / History views
+│       │   └── SettingsModal.jsx    # AI provider + token configuration
+│       ├── services/
+│       │   ├── storage.js           # localStorage settings persistence
+│       │   └── ai/                  # Provider abstraction (Copilot, OpenAI, Anthropic)
+│       ├── test/                    # Vitest + Testing Library unit tests
+│       └── index.css                # Global dark-theme base styles
 ├── LICENSE
 └── README.md
 ```
@@ -79,38 +89,36 @@ Open **http://localhost:5173** in your browser.
 | `npm run build` | Production build → `frontend/dist/` |
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | Run ESLint over the codebase |
+| `npm test` | Run the unit test suite once with Vitest |
+| `npm run test:watch` | Run Vitest in watch mode |
 
 ---
 
 ## Usage
 
-1. **Define your context** — use the right-hand panel to create context blocks (e.g. *System Prompt*, *App Under Test*, *Test Data*). These are injected before every prompt sent to the agent.
+1. **Configure an AI provider** — open the **Settings** (⚙) modal in the sidebar, pick a provider (GitHub Copilot, OpenAI, or Anthropic), paste your API token, and choose a model. Tokens are saved to your browser's `localStorage` only.
 
-2. **Write a prompt** — describe a test scenario in the bottom input bar and press **Enter** (use **Shift+Enter** for a new line without submitting).
+2. **Define your context** — use the right-hand panel to create context blocks (e.g. *System Prompt*, *App Under Test*, *Test Data*). These are injected before every prompt sent to the agent.
 
-3. **Review results** — the agent response appears in the chat with a status badge indicating whether the test passed, failed, or is still pending.
+3. **Write a prompt** — describe a test scenario in the bottom input bar and press **Enter** (use **Shift+Enter** for a new line without submitting).
 
-### Connecting a backend
+4. **Review results** — the agent response appears in the chat with a status badge indicating whether the test passed, failed, or is still pending.
 
-In `frontend/src/App.jsx`, replace the placeholder agent response with a real API call:
+5. **Navigate** — use the sidebar to switch between **Chat**, **Search**, **Apps**, and **History** views, or start a fresh conversation with **New Chat**.
 
-```js
-const handleSend = async (text) => {
-  const userMsg = { id: ++msgId, role: 'user', content: text };
-  setMessages(prev => [...prev, userMsg]);
+### Adding an AI provider
 
-  const response = await fetch('/api/run-test', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt: text, context: collectContextBlocks() }),
-  });
+Providers live in `frontend/src/services/ai/`. Each extends `BaseProvider` and implements `isReady()` and the request logic. Register a new one in `frontend/src/services/ai/index.js` and add its defaults to the `DEFAULTS` map — it then appears automatically in the Settings modal.
 
-  const { status, result } = await response.json();
-  setMessages(prev => [
-    ...prev,
-    { id: ++msgId, role: 'assistant', status, content: result },
-  ]);
-};
+> **Security note:** API tokens never leave the browser except as outbound `Authorization`/`x-api-key` headers to the provider you selected. They are not committed to the repository (see `.gitignore`) nor sent to any ATA-operated server.
+
+## Testing
+
+Unit tests are written with **Vitest** and **@testing-library/react** (jsdom environment) and live in `frontend/src/test/`. They cover sidebar/context icon rendering, navigation between views, and CSS regressions that could hide icons.
+
+```bash
+cd frontend
+npm test
 ```
 
 ---
@@ -121,6 +129,8 @@ const handleSend = async (text) => {
 |-------|-----------|
 | UI framework | React 18 |
 | Build tool | Vite 5 |
+| AI providers | GitHub Copilot, OpenAI, Anthropic |
+| Testing | Vitest + Testing Library (jsdom) |
 | Icons | lucide-react |
 | Styling | Component-scoped CSS |
 
@@ -128,7 +138,9 @@ const handleSend = async (text) => {
 
 ## Roadmap
 
-- [ ] Backend integration (LLM / agent API)
+- [x] Multi-provider AI integration (Copilot / OpenAI / Anthropic)
+- [x] Persist settings to local storage
+- [x] Unit test coverage
 - [ ] Persist context blocks to local storage
 - [ ] Export test cases to JSON / CSV
 - [ ] Test run history and replay
